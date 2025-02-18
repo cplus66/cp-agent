@@ -20,6 +20,7 @@ for symbol in $stock_symbols; do
     # Check if the response contains the required data
     if echo "$response" | grep -q '"chart":{"result"'; then
         # Extract the latest price and time from the JSON response
+        stock_name=$(echo "$response" | jq -r '.chart.result[0].meta.longName')
         latest_price=$(echo "$response" | jq -r '.chart.result[0].meta.regularMarketPrice')
         latest_time=$(echo "$response" | jq -r '.chart.result[0].meta.regularMarketTime')
         
@@ -27,7 +28,7 @@ for symbol in $stock_symbols; do
         latest_time_formatted=$(date -u -d @"$latest_time" +"%Y-%m-%d %H:%M:%S")
         
         # Print the latest price and time
-        echo "Latest price for ${symbol}: ${latest_price} TWD at ${latest_time_formatted}"
+        echo "Latest price for ${symbol}:${stock_name} ${latest_price} TWD at ${latest_time_formatted}"
     else
         echo "Error retrieving data for ${symbol} from Yahoo Finance: Unknown error"
     fi
