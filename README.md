@@ -9,6 +9,7 @@ Group by personal, family and business
 - Indices
 - Stocks
 - Bonds
+- Currencies
 
 ### Infrastucture
 - Check server availability.
