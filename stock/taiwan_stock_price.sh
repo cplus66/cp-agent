@@ -15,7 +15,7 @@ stock_symbols=$(cat "$CONFIG_FILE")
 # Loop through each stock symbol and query Yahoo Finance
 for symbol in $stock_symbols; do
     # Query Yahoo Finance API using curl
-    response=$(curl -s "https://query1.finance.yahoo.com/v8/finance/chart/${symbol}")
+    response=$(curl -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" -s "https://query1.finance.yahoo.com/v8/finance/chart/${symbol}")
 
     # Check if the response contains the required data
     if echo "$response" | grep -q '"chart":{"result"'; then
