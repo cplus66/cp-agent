@@ -2,7 +2,7 @@ import requests
 import csv
 import time
 import boto3
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from io import StringIO
 
 def get_stock_price(symbol):
@@ -20,7 +20,9 @@ def get_stock_price(symbol):
             meta = result["meta"]
             latest_price = meta["regularMarketPrice"]
             latest_time = meta["regularMarketTime"]
-            latest_time_formatted = datetime.fromtimestamp(latest_time, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            latest_time_utc = datetime.fromtimestamp(latest_time, tz=timezone.utc)
+            latest_time_gmt8 = latest_time_utc + timedelta(hours=8)
+            latest_time_formatted = latest_time_gmt8.strftime('%Y-%m-%d %H:%M:%S')
             return latest_price, latest_time_formatted
         else:
             print(f"Error: No chart data found for {symbol}")
