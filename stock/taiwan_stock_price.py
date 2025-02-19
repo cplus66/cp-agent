@@ -1,5 +1,5 @@
 import requests
-import json
+import csv
 import time
 from datetime import datetime, timezone
 
@@ -32,18 +32,22 @@ def get_stock_price(symbol):
     return None, None
 
 def read_stock_symbols(file_path):
-    """Read stock symbols from a file"""
+    """Read stock symbols from a CSV file"""
     with open(file_path, 'r') as file:
-        return [line.strip() for line in file if line.strip()]
+        reader = csv.DictReader(file)
+        return [row for row in reader]
 
 def main():
     config_file = 'config.txt'
     symbols = read_stock_symbols(config_file)
     
-    for symbol in symbols:
+    for entry in symbols:
+        symbol = entry['symbol']
+        count = entry['count']
+        typical = entry['typical']
         price, time = get_stock_price(symbol)
         if price and time:
-            print(f"Latest price for {symbol}: {price} TWD at {time}")
+            print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical})")
 
 if __name__ == '__main__':
     main()
