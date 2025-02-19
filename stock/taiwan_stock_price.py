@@ -1,7 +1,9 @@
 import requests
 import csv
 import time
+import boto3
 from datetime import datetime, timezone
+from io import StringIO
 
 def get_stock_price(symbol):
     """Get the latest stock price for a given symbol using Yahoo Finance"""
@@ -31,16 +33,19 @@ def get_stock_price(symbol):
             print(f"Error: Unable to retrieve data for {symbol}, status code: {response.status_code}")
     return None, None
 
-def read_stock_symbols(file_path):
-    """Read stock symbols from a CSV file"""
-    with open(file_path, 'r') as file:
-        reader = csv.DictReader(file)
-        return [row for row in reader]
+def read_stock_symbols_from_s3(bucket_name, object_key):
+    """Read stock symbols from a CSV file stored in S3"""
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket_name, Key=object_key)
+    content = response['Body'].read().decode('utf-8')
+    reader = csv.DictReader(StringIO(content))
+    return [row for row in reader]
 
 def main():
-    config_file = 'config.txt'
+    bucket_name = 'prjdoc'
+    object_key = 'cp-agent/config.txt'
     output_file = 'output.csv'
-    symbols = read_stock_symbols(config_file)
+    symbols = read_stock_symbols_from_s3(bucket_name, object_key)
     
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = ['symbol', 'price', 'date', 'count', 'typical', 'total']
@@ -54,7 +59,7 @@ def main():
             typical = entry['typical']
             price, time = get_stock_price(symbol)
             if price and time:
-                total = count * price
+                total = int(count * price)
                 writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical, 'total': total})
                 print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical}, Total: {total})")
 
