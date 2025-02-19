@@ -1,7 +1,7 @@
 import requests
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 def get_stock_price(symbol):
     """Get the latest stock price for a given symbol using Yahoo Finance"""
@@ -18,7 +18,7 @@ def get_stock_price(symbol):
             meta = result["meta"]
             latest_price = meta["regularMarketPrice"]
             latest_time = meta["regularMarketTime"]
-            latest_time_formatted = datetime.utcfromtimestamp(latest_time).strftime('%Y-%m-%d %H:%M:%S')
+            latest_time_formatted = datetime.fromtimestamp(latest_time, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             return latest_price, latest_time_formatted
         else:
             print(f"Error: No chart data found for {symbol}")
