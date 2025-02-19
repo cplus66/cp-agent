@@ -43,19 +43,20 @@ def main():
     symbols = read_stock_symbols(config_file)
     
     with open(output_file, 'w', newline='') as csvfile:
-        fieldnames = ['symbol', 'price', 'date', 'count', 'typical']
+        fieldnames = ['symbol', 'price', 'date', 'count', 'typical', 'total']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         writer.writeheader()
         
         for entry in symbols:
             symbol = entry['symbol']
-            count = entry['count']
+            count = int(entry['count'])
             typical = entry['typical']
             price, time = get_stock_price(symbol)
             if price and time:
-                writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical})
-                print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical})")
+                total = count * price
+                writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical, 'total': total})
+                print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical}, Total: {total})")
 
 if __name__ == '__main__':
     main()
