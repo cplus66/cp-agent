@@ -39,15 +39,23 @@ def read_stock_symbols(file_path):
 
 def main():
     config_file = 'config.txt'
+    output_file = 'output.csv'
     symbols = read_stock_symbols(config_file)
     
-    for entry in symbols:
-        symbol = entry['symbol']
-        count = entry['count']
-        typical = entry['typical']
-        price, time = get_stock_price(symbol)
-        if price and time:
-            print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical})")
+    with open(output_file, 'w', newline='') as csvfile:
+        fieldnames = ['symbol', 'price', 'date', 'count', 'typical']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        
+        for entry in symbols:
+            symbol = entry['symbol']
+            count = entry['count']
+            typical = entry['typical']
+            price, time = get_stock_price(symbol)
+            if price and time:
+                writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical})
+                print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical})")
 
 if __name__ == '__main__':
     main()
