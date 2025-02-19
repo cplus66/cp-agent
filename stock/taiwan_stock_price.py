@@ -47,6 +47,8 @@ def main():
     output_file = 'output.csv'
     symbols = read_stock_symbols_from_s3(bucket_name, object_key)
     
+    total_sum = 0
+    
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = ['symbol', 'price', 'date', 'count', 'typical', 'total']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -60,8 +62,11 @@ def main():
             price, time = get_stock_price(symbol)
             if price and time:
                 total = int(count * price)
+                total_sum += total
                 writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical, 'total': total})
                 print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical}, Total: {total})")
+    
+    print(f"Summary: Total value of all stocks is {total_sum} TWD")
 
 if __name__ == '__main__':
     main()
