@@ -55,11 +55,12 @@ def send_email(sender, recipient, subject, body_text, body_html, attachment_path
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Send an email with an attachment using AWS SES.')
     parser.add_argument('-f', '--file', required=True, help='The file path of the attachment.')
+    parser.add_argument('-m', '--mail', required=True, help='The email address of the sender and recipient.')
 
     args = parser.parse_args()
 
-    SENDER = "cplus.shen@gmail.com"
-    RECIPIENT = "cplus.shen@gmail.com"
+    SENDER = args.mail
+    RECIPIENT = args.mail
     SUBJECT = "[cp-agent] daily report"
     BODY_TEXT = "FIRE Daily Report,\r\nPlease see the attached file."
     BODY_HTML = """<html>
