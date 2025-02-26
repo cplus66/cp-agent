@@ -5,6 +5,7 @@ import mimetypes
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+import argparse
 
 def send_email(sender, recipient, subject, body_text, body_html, attachment_path):
     # AWS SES client
@@ -51,19 +52,23 @@ def send_email(sender, recipient, subject, body_text, body_html, attachment_path
     else:
         print(f"Email sent! Message ID: {response['MessageId']}")
 
-# Example usage
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Send an email with an attachment using AWS SES.')
+    parser.add_argument('-f', '--file', required=True, help='The file path of the attachment.')
+
+    args = parser.parse_args()
+
     SENDER = "cplus.shen@gmail.com"
     RECIPIENT = "cplus.shen@gmail.com"
     SUBJECT = "[cp-agent] daily report"
-    BODY_TEXT = "Hello,\r\nPlease see the attached file."
+    BODY_TEXT = "FIRE Daily Report,\r\nPlease see the attached file."
     BODY_HTML = """<html>
     <head></head>
     <body>
-      <h1>Hello!</h1>
+      <h1>FIRE Daily Report!</h1>
       <p>Please see the attached file.</p>
     </body>
     </html>"""
-    ATTACHMENT_PATH = "attachment.txt"
+    ATTACHMENT_PATH = args.file
 
     send_email(SENDER, RECIPIENT, SUBJECT, BODY_TEXT, BODY_HTML, ATTACHMENT_PATH)
