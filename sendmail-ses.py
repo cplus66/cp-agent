@@ -70,12 +70,11 @@ if __name__ == "__main__":
     SUBJECT = "[cp-agent] daily report"
 
     attachment_content = get_attachment_content(args.file)
-    BODY_TEXT = f"FIRE Daily Report,\r\nPlease see the attached file.\r\n\n{attachment_content}"
+    BODY_TEXT = f"FIRE Daily Report,\r\n{attachment_content}"
     BODY_HTML = f"""<html>
     <head></head>
     <body>
-      <h1>FIRE Daily Report!</h1>
-      <p>Please see the attached file.</p>
+      <h1>FIRE Daily Report</h1>
       <p>{attachment_content.replace('\n', '<br>')}</p>
     </body>
     </html>"""

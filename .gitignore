@@ -1,2 +1,5 @@
 output.*
 attachment.*
+fire.log
+stock/config-*.txt
+config.txt
