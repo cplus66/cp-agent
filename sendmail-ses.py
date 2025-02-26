@@ -71,13 +71,13 @@ if __name__ == "__main__":
 
     attachment_content = get_attachment_content(args.file)
     BODY_TEXT = f"FIRE Daily Report,\r\n{attachment_content}"
-    BODY_HTML = f"""<html>
+    BODY_HTML = """<html>
     <head></head>
     <body>
       <h1>FIRE Daily Report</h1>
-      <p>{attachment_content.replace('\n', '<br>')}</p>
+      <p>{0}</p>
     </body>
-    </html>"""
+    </html>""".format(attachment_content.replace('\n', '<br>'))
     ATTACHMENT_PATH = args.file
 
     send_email(SENDER, RECIPIENT, SUBJECT, BODY_TEXT, BODY_HTML, ATTACHMENT_PATH)
