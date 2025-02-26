@@ -75,7 +75,7 @@ if __name__ == "__main__":
     <head></head>
     <body>
       <h1>FIRE Daily Report</h1>
-      <p>{attachment_content.replace('\n', '<br>')}</p>
+      <p>{attachment_content.replace('{chr(92)n', '<br>')}</p>
     </body>
     </html>"""
     ATTACHMENT_PATH = args.file
