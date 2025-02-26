@@ -1,4 +1,5 @@
 import requests
+import argparse
 import csv
 import time
 import boto3
@@ -44,9 +45,15 @@ def read_stock_symbols_from_s3(bucket_name, object_key):
     return [row for row in reader]
 
 def main():
+    parser = argparse.ArgumentParser(description='Fetch and save stock prices for a given symbols.')
+    parser.add_argument('-c', '--config', default='config.txt', help='Stock symbol config')
+    parser.add_argument('-o', '--output', default='output.csv', help='Output CSV file')
+    args = parser.parse_args()
+    
     bucket_name = 'prjdoc'
-    object_key = 'cp-agent/config.txt'
-    output_file = 'output.csv'
+    s3_cp_agent_home = "cp-agent"
+    object_key = s3_cp_agent_home + "/" + args.config
+    output_file = args.output
     symbols = read_stock_symbols_from_s3(bucket_name, object_key)
     
     total_sum = 0

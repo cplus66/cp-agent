@@ -14,9 +14,17 @@ echo -e "\nUSD to NTD Exchange Rate" | tee -a $OUTPUT
 echo -e "==========================" | tee -a $OUTPUT
 python $AGENT_HOME/currency/usd_to_ntd_exchange.py | tee -a $OUTPUT
 
-echo -e "\nTW Stock" | tee -a $OUTPUT
+echo -e "\nTW Stock(ALL)" | tee -a $OUTPUT
 echo -e "==========================" | tee -a $OUTPUT
 python $AGENT_HOME/stock/taiwan_stock_price.py | tee -a $OUTPUT
+
+echo -e "\nTW Stock Only" | tee -a $OUTPUT
+echo -e "==========================" | tee -a $OUTPUT
+python $AGENT_HOME/stock/taiwan_stock_price.py -c config-stock.txt | tee -a $OUTPUT
+
+echo -e "\nTW Stock (Bond EFT)" | tee -a $OUTPUT
+echo -e "==========================" | tee -a $OUTPUT
+python $AGENT_HOME/stock/taiwan_stock_price.py -c config-bond.txt | tee -a $OUTPUT
 
 # Send report
 python $AGENT_HOME/sendmail-ses.py -f $OUTPUT -m $RECIPIENT
