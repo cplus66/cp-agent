@@ -1,60 +1,69 @@
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import ClientError
+import os
+import mimetypes
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 
-# Replace these variables with your information
-SENDER = "cplus.shen@gmail.com"
-RECIPIENT = "cplus.shen@gmail.com"
-SUBJECT = "Amazon SES Test Email (Python, 2025-0218, 11:29)"
-BODY_TEXT = ("Amazon SES Test Email\n"
-             "This email was sent with Amazon SES using the AWS SDK for Python (Boto3)."
-             )
-BODY_HTML = """<html>
-<head></head>
-<body>
-  <h1>Amazon SES Test Email</h1>
-  <p>This email was sent with
-    <a href='https://aws.amazon.com/ses/'>Amazon SES</a> using the
-    <a href='https://boto3.amazonaws.com/v1/documentation/api/latest/index.html'>AWS SDK for Python (Boto3)</a>.</p>
-</body>
-</html>
-            """
-CHARSET = "UTF-8"
+def send_email(sender, recipient, subject, body_text, body_html, attachment_path):
+    # AWS SES client
+    ses_client = boto3.client('ses')
 
-# Create a new SES resource and specify a region.
-#client = boto3.client('ses',region_name=AWS_REGION)
-client = boto3.client('ses')
+    # Create a multipart/mixed parent container
+    msg = MIMEMultipart('mixed')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = recipient
 
-# Try to send the email.
-try:
-    # Provide the contents of the email.
-    response = client.send_email(
-        Destination={
-            'ToAddresses': [
-                RECIPIENT,
-            ],
-        },
-        Message={
-            'Body': {
-                'Html': {
-                    'Charset': CHARSET,
-                    'Data': BODY_HTML,
-                },
-                'Text': {
-                    'Charset': CHARSET,
-                    'Data': BODY_TEXT,
-                },
-            },
-            'Subject': {
-                'Charset': CHARSET,
-                'Data': SUBJECT,
-            },
-        },
-        Source=SENDER,
-#        SourceArn='arn:aws:ses:us-east-1:270180045065:identity/cplus.shen@gmail.com',
-    )
-# Display an error if something goes wrong.
-except (NoCredentialsError, PartialCredentialsError) as e:
-    print(f"Error: {e}")
-else:
-    print("Email sent! Message ID:"),
-    print(response['MessageId'])
+    # Create a multipart/alternative child container
+    msg_body = MIMEMultipart('alternative')
+
+    # Encode the text and HTML content
+    textpart = MIMEText(body_text, 'plain')
+    htmlpart = MIMEText(body_html, 'html')
+
+    # Attach parts into message container.
+    msg_body.attach(textpart)
+    msg_body.attach(htmlpart)
+
+    # Define the attachment part and encode it using MIMEApplication
+    if attachment_path:
+        with open(attachment_path, 'rb') as attachment:
+            att = MIMEApplication(attachment.read())
+            att.add_header('Content-Disposition', 'attachment', filename=os.path.basename(attachment_path))
+            msg.attach(att)
+
+    # Attach the multipart/alternative child container to the multipart/mixed parent container
+    msg.attach(msg_body)
+
+    try:
+        # Provide the contents of the email
+        response = ses_client.send_raw_email(
+            Source=sender,
+            Destinations=[recipient],
+            RawMessage={
+                'Data': msg.as_string(),
+            }
+        )
+    except ClientError as e:
+        print(f"Error: {e.response['Error']['Message']}")
+    else:
+        print(f"Email sent! Message ID: {response['MessageId']}")
+
+# Example usage
+if __name__ == "__main__":
+    SENDER = "cplus.shen@gmail.com"
+    RECIPIENT = "cplus.shen@gmail.com"
+    SUBJECT = "[cp-agent] daily report"
+    BODY_TEXT = "Hello,\r\nPlease see the attached file."
+    BODY_HTML = """<html>
+    <head></head>
+    <body>
+      <h1>Hello!</h1>
+      <p>Please see the attached file.</p>
+    </body>
+    </html>"""
+    ATTACHMENT_PATH = "attachment.txt"
+
+    send_email(SENDER, RECIPIENT, SUBJECT, BODY_TEXT, BODY_HTML, ATTACHMENT_PATH)
