@@ -30,7 +30,7 @@ echo -e "\nTW Stock (2345)" | tee -a $OUTPUT
 echo -e "==========================" | tee -a $OUTPUT
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-2345.txt | tee -a $OUTPUT
 
-echo -e "\nTW Stock (2345)" | tee -a $OUTPUT
+echo -e "\nTW Stock (5770)" | tee -a $OUTPUT
 echo -e "==========================" | tee -a $OUTPUT
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-5770.txt | tee -a $OUTPUT
 
