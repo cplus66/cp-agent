@@ -52,6 +52,12 @@ def send_email(sender, recipient, subject, body_text, body_html, attachment_path
     else:
         print(f"Email sent! Message ID: {response['MessageId']}")
 
+def get_attachment_content(attachment_path):
+    if attachment_path:
+        with open(attachment_path, 'r') as attachment:
+            return attachment.read()
+    return ""
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Send an email with an attachment using AWS SES.')
     parser.add_argument('-f', '--file', required=True, help='The file path of the attachment.')
@@ -62,12 +68,15 @@ if __name__ == "__main__":
     SENDER = args.mail
     RECIPIENT = args.mail
     SUBJECT = "[cp-agent] daily report"
-    BODY_TEXT = "FIRE Daily Report,\r\nPlease see the attached file."
-    BODY_HTML = """<html>
+
+    attachment_content = get_attachment_content(args.file)
+    BODY_TEXT = f"FIRE Daily Report,\r\nPlease see the attached file.\r\n\n{attachment_content}"
+    BODY_HTML = f"""<html>
     <head></head>
     <body>
       <h1>FIRE Daily Report!</h1>
       <p>Please see the attached file.</p>
+      <p>{attachment_content.replace('\n', '<br>')}</p>
     </body>
     </html>"""
     ATTACHMENT_PATH = args.file
