@@ -1,2 +1,1 @@
-0 5 * * 1-5 $HOME/cp-agent/fire.sh >> $HOME/cp-agent/log/fire.log 2>&1
-
+0 14 * * 1-5 $HOME/cp-agent/fire.sh >> $HOME/cp-agent/log/fire.log 2>&1
