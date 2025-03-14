@@ -3,16 +3,14 @@ OUTPUT=attachment.txt
 RECIPIENT=cplus.shen@gmail.com
 
 PATH=$HOME/venv/bin:$PATH
-AGENT_HOME=$HOME/cp-agent
+AGENT_HOME=$(dirname $0)
 
 usage()
 {
   echo "./fire.sh [-m]"
 }
 
-rm -f $OUTPUT
-
-exec &> >(tee -a "$OUTPUT")
+exec &> >(tee "$OUTPUT")
 
 echo -e "$(date)" 
 echo -e "\nUS 10 Year Bond Yield Rate"
@@ -49,4 +47,4 @@ if [ x"$1" == "x-m" ]; then
 fi
 
 # clean up
-# rm -f $OUTPUT
+rm -f $OUTPUT
