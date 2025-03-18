@@ -32,3 +32,8 @@ Get notified when a service crashes or a critical process fails.
 
 ## Code Construction
 
+## Environment Setup
+```
+python -m venv venv
+export PATH=/home/cplus/venv/bin:$PATH
+```
