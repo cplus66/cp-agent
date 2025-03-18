@@ -3,6 +3,7 @@ import argparse
 import csv
 import time
 import boto3
+import pandas as pd
 from datetime import datetime, timezone, timedelta
 from io import StringIO
 
@@ -73,8 +74,9 @@ def main():
                 total = int(count * price)
                 total_sum += total
                 writer.writerow({'symbol': symbol, 'price': price, 'date': time, 'count': count, 'typical': typical, 'total': total})
-                print(f"Latest price for {symbol}: {price} TWD at {time} (Count: {count}, Typical: {typical}, Total: {total})")
     
+    stock_df = pd.read_csv(output_file)
+    print(stock_df)
     print(f"Summary: Total value of all stocks is {total_sum} TWD")
 
 if __name__ == '__main__':
