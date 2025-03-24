@@ -37,3 +37,28 @@ Get notified when a service crashes or a critical process fails.
 python -m venv venv
 export PATH=/home/cplus/venv/bin:$PATH
 ```
+
+
+## Reference
+### scikit-learn
+scikit-learn Cookbook - Second Edition
+https://learning.oreilly.com/library/view/scikit-learn-cookbook/9781787286382/
+
+### AI for finance
+Deep Learning for Finance
+https://learning.oreilly.com/library/view/deep-learning-for/9781098148386/
+
+Python for Finance Cookbook - Second Edition
+https://learning.oreilly.com/library/view/python-for-finance/9781803243191/
+
+Artificial Intelligence in Finance
+https://learning.oreilly.com/library/view/artificial-intelligence-in/9781492055426/
+
+Python for Finance, 2nd Edition
+https://learning.oreilly.com/library/view/python-for-finance/9781492024323/
+
+Machine Learning and Data Science Blueprints for Finance
+https://learning.oreilly.com/library/view/machine-learning-and/9781492073048/
+
+Network Models in Finance
+https://learning.oreilly.com/library/view/network-models-in/9781394279685/
