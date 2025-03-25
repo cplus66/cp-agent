@@ -18,16 +18,19 @@ def calculate_interest(input_file, output_file, conversion_file):
     # Calculate NTD
     df['ntd'] = df.apply(lambda row: int(row['interest'] * conversion_rate) if row['interest'] != 'Invalid Data' else 'Invalid Data', axis=1)
     
-    # Print the content of the DataFrame before saving
-    print("DataFrame content before saving:")
-    print(df)
+    # Save the updated DataFrame to the output CSV file
+    df.to_csv(output_file, index=False)
     
+    # Remove the 'expire' column if it exists
+    if 'expire' in df.columns:
+        df.drop(columns=['expire'], inplace=True)
+    
+    # Print the content of the DataFrame after removing the 'expire' column
+    print(df)
+
     # Calculate and print the total value of the 'ntd' column
     total_ntd = df[df['ntd'] != 'Invalid Data']['ntd'].sum()
     print(f"\nTotal value of the 'ntd' column: {total_ntd}")
-    
-    # Save the updated DataFrame to the output CSV file
-    df.to_csv(output_file, index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Calculate interest and save to output file.')
