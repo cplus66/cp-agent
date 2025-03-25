@@ -18,6 +18,8 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
     # Calculate NTD
     df['ntd'] = df.apply(lambda row: int(row['interest'] * conversion_rate) if row['interest'] != 'Invalid Data' else 'Invalid Data', axis=1)
     
+    # Calculate curr-ntd-value
+    df['curr-ntd-value'] = df.apply(lambda row: int(float(row['unit']) * float(row['ref-price']) * conversion_rate) if pd.notnull(row['unit']) and pd.notnull(row['ref-price']) else 'Invalid Data', axis=1)
     
     # Save the updated DataFrame to the output CSV file
     df.to_csv(output_file, index=False)
@@ -31,11 +33,15 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
 
     # Calculate the total value of the 'ntd' column
     total_ntd = df[df['ntd'] != 'Invalid Data']['ntd'].sum()
-    print(f"Summary: Total value of all interest is {total_ntd} TWD")
+    print(f"Summary: Total value of the bond interest is {total_ntd} TWD")
     
-    # Append the total value to the summary CSV file
+    # Calculate the total value of the 'curr-ntd-value' column
+    total_curr_ntd_value = df[df['curr-ntd-value'] != 'Invalid Data']['curr-ntd-value'].sum()
+    print(f"Summary: Total value of the bond is {total_curr_ntd_value} TWD")
+    
+    # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['bond-us', total_ntd]], columns=['name', 'value'])
+        writer = pd.DataFrame([['total_ntd', total_ntd], ['total_curr_ntd_value', total_curr_ntd_value]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == "__main__":

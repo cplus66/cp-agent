@@ -65,3 +65,4 @@ fi
 
 # clean up
 rm -f $OUTPUT
+rm -f $AGENT_DATA/usd-to-ntd-tmp.txt
