@@ -24,7 +24,7 @@ def calculate_interest(input_file, output_file, conversion_file):
                     unit = float(unit)
                     rate = float(rate)
                     interest = unit * rate
-                    ntd = interest * conversion_rate
+                    ntd = int(interest * conversion_rate)
                 except ValueError:
                     interest = 'Invalid Data'
                     ntd = 'Invalid Data'
