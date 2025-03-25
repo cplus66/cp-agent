@@ -14,7 +14,7 @@ Get notified when a service crashes or a critical process fails.
 
 ## Installation & Usage: 
 - Add crontab for ./fire.sh
-- Install Python libary (pip-list.txt)
+- Install Python libary (requirements.txt)
 
 ## Task Groups
 - Personal
