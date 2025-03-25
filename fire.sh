@@ -15,16 +15,25 @@ usage()
   echo "./fire.sh [-m]"
 }
 
+create_summary_csv_header()
+{
+  echo "name,value" > $AGENT_DATA/summary.csv
+}
+
 exec &> >(tee "$OUTPUT")
 
 echo -e "$(date)" 
+
+create_summary_csv_header
+
 echo -e "\nUS 10 Year Bond Yield Rate"
 echo -e "======================================================================"
 python3 $AGENT_HOME/bond/us-10-bond-yield.py
 
 echo -e "\nUSD to NTD Exchange Rate"
 echo -e "======================================================================"
-python3 $AGENT_HOME/currency/usd_to_ntd_exchange.py
+python3 $AGENT_HOME/currency/usd_to_ntd_exchange.py | tee $AGENT_DATA/usd-to-ntd-tmp.txt
+awk '{print $9}' $AGENT_DATA/usd-to-ntd-tmp.txt | tee $AGENT_DATA/usd-to-ntd.txt
 
 echo -e "\nTW Stock(ALL)"
 echo -e "======================================================================"
@@ -40,8 +49,14 @@ python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-bond.txt -o $AGENT_DAT
 
 echo -e "\nTW Stock Yield Rate"
 echo -e "======================================================================"
-aws s3 cp s3://prjdoc/cp-agent/earning.csv data/earning.csv > /dev/null
+aws s3 cp s3://prjdoc/cp-agent/earning.csv $AGENT_DATA > /dev/null
 python3 $AGENT_HOME/stock/stock_yield_rate.py $AGENT_DATA/stock.csv $AGENT_DATA/earning.csv $AGENT_DATA/rate.csv
+
+echo -e "\nUS Bond Yield Rate"
+echo -e "======================================================================"
+aws s3 cp s3://prjdoc/cp-agent/bond.csv $AGENT_DATA > /dev/null
+python3 $AGENT_HOME/bond/interest.py -f $AGENT_DATA/bond.csv -o $AGENT_DATA/bond-interest.csv \
+	-c $AGENT_DATA/usd-to-ntd.txt -s $AGENT_DATA/summary.csv
 
 # Send report
 if [ x"$1" == "x-m" ]; then
