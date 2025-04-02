@@ -13,7 +13,7 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
     df = pd.read_csv(input_file)
     
     # Calculate interest
-    df['interest'] = df.apply(lambda row: float(row['unit']) * float(row['rate']) if pd.notnull(row['unit']) and pd.notnull(row['rate']) else 'Invalid Data', axis=1)
+    df['interest'] = df.apply(lambda row: float(row['price']) * float(row['rate']) if pd.notnull(row['price']) and pd.notnull(row['rate']) else 'Invalid Data', axis=1)
     
     # Calculate NTD
     df['ntd'] = df.apply(lambda row: int(row['interest'] * conversion_rate) if row['interest'] != 'Invalid Data' else 'Invalid Data', axis=1)
@@ -21,16 +21,12 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
     # Save the updated DataFrame to the output CSV file
     df.to_csv(output_file, index=False)
     
-    # Remove the 'expire' column if it exists
-    if 'expire' in df.columns:
-        df.drop(columns=['expire'], inplace=True)
-    
     # Print the content of the DataFrame after removing the 'expire' column
     print(df)
 
     # Calculate the total value of the 'ntd' column
     total_ntd = df[df['ntd'] != 'Invalid Data']['ntd'].sum()
-    print(f"Summary: Total value of the bond interest is {total_ntd} TWD")
+    print(f"Summary: Total value of the US cash interest is {total_ntd} TWD")
     
     # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:

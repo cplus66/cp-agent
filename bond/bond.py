@@ -6,17 +6,14 @@ def read_usd_to_twd_conversion(file_path):
         conversion_rate = float(file.read().strip())
     return conversion_rate
 
-def calculate_interest(input_file, output_file, conversion_file, summary_file):
+def calculate_bond(input_file, output_file, conversion_file, summary_file):
     conversion_rate = read_usd_to_twd_conversion(conversion_file)
     
     # Read the input CSV file using pandas
     df = pd.read_csv(input_file)
     
-    # Calculate interest
-    df['interest'] = df.apply(lambda row: float(row['unit']) * float(row['rate']) if pd.notnull(row['unit']) and pd.notnull(row['rate']) else 'Invalid Data', axis=1)
-    
-    # Calculate NTD
-    df['ntd'] = df.apply(lambda row: int(row['interest'] * conversion_rate) if row['interest'] != 'Invalid Data' else 'Invalid Data', axis=1)
+    # Calculate curr-ntd-value
+    df['curr-ntd-value'] = df.apply(lambda row: int(float(row['unit']) * float(row['ref-price']) * conversion_rate) if pd.notnull(row['unit']) and pd.notnull(row['ref-price']) else 'Invalid Data', axis=1)
     
     # Save the updated DataFrame to the output CSV file
     df.to_csv(output_file, index=False)
@@ -28,13 +25,13 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
     # Print the content of the DataFrame after removing the 'expire' column
     print(df)
 
-    # Calculate the total value of the 'ntd' column
-    total_ntd = df[df['ntd'] != 'Invalid Data']['ntd'].sum()
-    print(f"Summary: Total value of the bond interest is {total_ntd} TWD")
+    # Calculate the total value of the 'curr-ntd-value' column
+    total_curr_ntd_value = df[df['curr-ntd-value'] != 'Invalid Data']['curr-ntd-value'].sum()
+    print(f"Summary: Total value of the bond is {total_curr_ntd_value} TWD")
     
     # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['total_ntd', total_ntd]], columns=['name', 'value'])
+        writer = pd.DataFrame([['total_curr_ntd_value', total_curr_ntd_value]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == "__main__":
@@ -45,4 +42,4 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--summary', required=True, help='Summary CSV file to append the total value')
     args = parser.parse_args()
     
-    calculate_interest(args.file, args.output, args.conversion, args.summary)
+    calculate_bond(args.file, args.output, args.conversion, args.summary)

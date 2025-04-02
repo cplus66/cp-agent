@@ -49,6 +49,7 @@ def main():
     parser = argparse.ArgumentParser(description='Fetch and save stock prices for a given symbols.')
     parser.add_argument('-c', '--config', default='config.txt', help='Stock symbol config')
     parser.add_argument('-o', '--output', default='output.csv', help='Output CSV file')
+    parser.add_argument('-s', '--summary', required=True, help='Summary CSV file to append the total value')
     args = parser.parse_args()
     
     bucket_name = 'prjdoc'
@@ -78,6 +79,12 @@ def main():
     stock_df = pd.read_csv(output_file)
     print(stock_df)
     print(f"Summary: Total value of all stocks is {total_sum} TWD")
+
+    # Append the total values to the summary CSV file
+    summary_file = args.summary
+    with open(summary_file, 'a', newline='') as summary:
+        writer = pd.DataFrame([['total_ntd', total_sum]], columns=['name', 'value'])
+        writer.to_csv(summary, header=False, index=False)
 
 if __name__ == '__main__':
     main()
