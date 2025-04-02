@@ -102,17 +102,19 @@ fi
 echo -e "\nTW Stock(ALL)"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config.txt -o $AGENT_DATA/stock.csv \
-	-s $OUTPUT_SUBTOTAL_ASSET
+	-s /dev/null
 
 echo -e "\nTW Stock Only"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-stock.txt -o $AGENT_DATA/stock_only.csv \
 	-s $OUTPUT_SUBTOTAL_ASSET_STOCK
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_STOCK >> $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nTW Stock (Bond ETF)"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-bond.txt -o $AGENT_DATA/bond_etf.csv \
 	-s $OUTPUT_SUBTOTAL_ASSET_BOND
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_BOND >> $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nUS Bond"
 echo -e "======================================================================"
@@ -167,6 +169,21 @@ echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/fixed.csv $AGENT_DATA > /dev/null
 python $AGENT_HOME/cash/fixed_tw.py -f $AGENT_DATA/fixed.csv -o $AGENT_DATA/out-fixed-tw.csv \
 	-s $OUTPUT_SUBTOTAL_INTEREST
+
+#
+# Subtotal
+#
+echo -e "\nTotal Asset Stock"
+echo -e "======================================================================"
+python $AGENT_HOME/total/total.py -f $OUTPUT_SUBTOTAL_ASSET_STOCK -o /dev/null
+
+echo -e "\nTotal Asset Bond"
+echo -e "======================================================================"
+python $AGENT_HOME/total/total.py -f $OUTPUT_SUBTOTAL_ASSET_BOND -o /dev/null
+
+echo -e "\nTotal Asset Cash"
+echo -e "======================================================================"
+python $AGENT_HOME/total/total.py -f $OUTPUT_SUBTOTAL_ASSET_CASH -o /dev/null
 
 #
 # Total
