@@ -83,7 +83,7 @@ def main():
     # Append the total values to the summary CSV file
     summary_file = args.summary
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['total_ntd', total_sum]], columns=['name', 'value'])
+        writer = pd.DataFrame([['stock', total_sum]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == '__main__':

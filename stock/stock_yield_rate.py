@@ -1,7 +1,7 @@
 import pandas as pd
 import sys
 
-def main(stock_file, earning_file, output_file):
+def main(stock_file, earning_file, output_file, summary_file):
     # Read the CSV files
     stock_df = pd.read_csv(stock_file)
     earning_df = pd.read_csv(earning_file)
@@ -34,11 +34,16 @@ def main(stock_file, earning_file, output_file):
     annual_sum = merged_df['annual'].sum()
     print(f"Summary: Total value of all earning is {annual_sum} TWD")
 
+    with open(summary_file, 'a', newline='') as summary:
+        writer = pd.DataFrame([['stock_yield', annual_sum]], columns=['name', 'value'])
+        writer.to_csv(summary, header=False, index=False)
+
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python script.py <stock_file> <earning_file> <output_file>")
+    if len(sys.argv) != 5:
+        print("Usage: python script.py <stock_file> <earning_file> <output_file> <summary_file>")
     else:
         stock_file = sys.argv[1]
         earning_file = sys.argv[2]
         output_file = sys.argv[3]
-        main(stock_file, earning_file, output_file)
+        summary_file = sys.argv[4]
+        main(stock_file, earning_file, output_file,summary_file)

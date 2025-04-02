@@ -7,7 +7,7 @@ def calculate_interest(input_file, output_file, summary_file):
     df = pd.read_csv(input_file)
     
     # Calculate interest
-    df['interest'] = df.apply(lambda row: float(row['price']) * float(row['rate']) if pd.notnull(row['price']) and pd.notnull(row['rate']) else 'Invalid Data', axis=1)
+    df['interest'] = df.apply(lambda row: int(float(row['price']) * float(row['rate'])) if pd.notnull(row['price']) and pd.notnull(row['rate']) else 'Invalid Data', axis=1)
     
     # Save the updated DataFrame to the output CSV file
     df.to_csv(output_file, index=False)
@@ -21,7 +21,7 @@ def calculate_interest(input_file, output_file, summary_file):
     
     # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['total_ntd', total_ntd]], columns=['name', 'value'])
+        writer = pd.DataFrame([['fixed_tw', total_ntd]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == "__main__":

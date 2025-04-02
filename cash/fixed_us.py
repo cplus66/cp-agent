@@ -30,7 +30,7 @@ def calculate_interest(input_file, output_file, conversion_file, summary_file):
     
     # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['total_ntd', total_ntd]], columns=['name', 'value'])
+        writer = pd.DataFrame([['fixed_us', total_ntd]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == "__main__":

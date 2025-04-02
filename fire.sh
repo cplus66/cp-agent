@@ -35,27 +35,33 @@ AGENT_DATA=$AGENT_HOME/data
 OUTPUT=$AGENT_DATA/attachment.txt
 AGENT_LOG=$AGENT_HOME/log
 
+OUTPUT_SUBTOTAL_ASSET=$AGENT_DATA/subtotal-asset.csv
+OUTPUT_SUBTOTAL_ASSET_STOCK=$AGENT_DATA/subtotal-asset-stock.csv
+OUTPUT_SUBTOTAL_ASSET_BOND=$AGENT_DATA/subtotal-asset-bond.csv
+OUTPUT_SUBTOTAL_ASSET_CASH=$AGENT_DATA/subtotal-asset-cash.csv
+OUTPUT_SUBTOTAL_INTEREST=$AGENT_DATA/subtotal-interest.csv
 OUTPUT_TOTAL_ASSET=$AGENT_DATA/total-asset.csv
-OUTPUT_TOTAL_ASSET_STOCK=$AGENT_DATA/total-asset-stock.csv
-OUTPUT_TOTAL_ASSET_BOND=$AGENT_DATA/total-asset-bond.csv
-OUTPUT_TOTAL_ASSET_CASH=$AGENT_DATA/total-asset-cash.csv
 OUTPUT_TOTAL_INTEREST=$AGENT_DATA/total-interest.csv
-
-mkdir -p $AGENT_DATA
-mkdir -p $AGENT_LOG
 
 usage()
 {
   echo "./fire.sh [-m]"
 }
 
+prepare()
+{
+  mkdir -p $AGENT_DATA
+  mkdir -p $AGENT_LOG
+}
+
+
 create_summary_csv_header()
 {
-  echo "name,value" > $OUTPUT_TOTAL_ASSET
-  echo "name,value" > $OUTPUT_TOTAL_ASSET_STOCK
-  echo "name,value" > $OUTPUT_TOTAL_ASSET_BOND
-  echo "name,value" > $OUTPUT_TOTAL_ASSET_CASH
-  echo "name,value" > $OUTPUT_TOTAL_INTEREST
+  echo "name,value" > $OUTPUT_SUBTOTAL_ASSET
+  echo "name,value" > $OUTPUT_SUBTOTAL_ASSET_STOCK
+  echo "name,value" > $OUTPUT_SUBTOTAL_ASSET_BOND
+  echo "name,value" > $OUTPUT_SUBTOTAL_ASSET_CASH
+  echo "name,value" > $OUTPUT_SUBTOTAL_INTEREST
 }
 
 is_usd_to_ntd_empty()
@@ -73,6 +79,7 @@ exec &> >(tee "$OUTPUT")
 
 echo -e "$(date)" 
 
+prepare
 create_summary_csv_header
 
 echo -e "\nUS 10 Year Bond Yield Rate"
@@ -88,70 +95,89 @@ if [ is_usd_to_ntd_empty ]; then
   echo "33.20" > $AGENT_DATA/usd-to-ntd.txt
 fi
 
+#
+# Asset (Stock, Bond, Cash)
+#
+
 echo -e "\nTW Stock(ALL)"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config.txt -o $AGENT_DATA/stock.csv \
-	-s $OUTPUT_TOTAL_ASSET
+	-s $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nTW Stock Only"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-stock.txt -o $AGENT_DATA/stock_only.csv \
-	-s $OUTPUT_TOTAL_ASSET_STOCK
+	-s $OUTPUT_SUBTOTAL_ASSET_STOCK
 
 echo -e "\nTW Stock (Bond ETF)"
 echo -e "======================================================================"
 python3 $AGENT_HOME/stock/taiwan_stock_price.py -c config-bond.txt -o $AGENT_DATA/bond_etf.csv \
-	-s $OUTPUT_TOTAL_ASSET_BOND
+	-s $OUTPUT_SUBTOTAL_ASSET_BOND
 
 echo -e "\nUS Bond"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/bond.csv $AGENT_DATA > /dev/null
 python3 $AGENT_HOME/bond/bond.py -f $AGENT_DATA/bond.csv -o $AGENT_DATA/bond-interest.csv \
-	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_TOTAL_ASSET_BOND
+	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_SUBTOTAL_ASSET_BOND
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_BOND >> $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nCash TW Total"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/cash.csv $AGENT_DATA > /dev/null
 python $AGENT_HOME/cash/cash_tw.py -f $AGENT_DATA/cash.csv -o $AGENT_DATA/out-cash.csv \
-	-s $OUTPUT_TOTAL_ASSET
-tail -n 1 $OUTPUT_TOTAL_ASSET >> $OUTPUT_TOTAL_ASSET_CASH
+	-s $OUTPUT_SUBTOTAL_ASSET_CASH
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_CASH >> $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nCash TW Fixed Total"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/fixed.csv $AGENT_DATA > /dev/null
 python $AGENT_HOME/cash/cash_tw.py -f $AGENT_DATA/fixed.csv -o $AGENT_DATA/out-cash.csv \
-	-s $OUTPUT_TOTAL_ASSET
-tail -n 1 $OUTPUT_TOTAL_ASSET >> $OUTPUT_TOTAL_ASSET_CASH
+	-s $OUTPUT_SUBTOTAL_ASSET_CASH
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_CASH >> $OUTPUT_SUBTOTAL_ASSET
 
 echo -e "\nCash US Fixed Total"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/fixed-us.csv $AGENT_DATA > /dev/null
 python $AGENT_HOME/cash/cash_us.py -f $AGENT_DATA/fixed-us.csv -o $AGENT_DATA/out-cash-us.csv \
-	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_TOTAL_ASSET
-tail -n 1 $OUTPUT_TOTAL_ASSET >> $OUTPUT_TOTAL_ASSET_CASH
+	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_SUBTOTAL_ASSET_CASH
+tail -n 1 $OUTPUT_SUBTOTAL_ASSET_CASH >> $OUTPUT_SUBTOTAL_ASSET
 
+#
+# Yield Rate
+#
 echo -e "\nTW Stock Yield Rate"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/earning.csv $AGENT_DATA > /dev/null
-python3 $AGENT_HOME/stock/stock_yield_rate.py $AGENT_DATA/stock.csv $AGENT_DATA/earning.csv $AGENT_DATA/rate.csv
+python3 $AGENT_HOME/stock/stock_yield_rate.py $AGENT_DATA/stock.csv $AGENT_DATA/earning.csv $AGENT_DATA/rate.csv $OUTPUT_SUBTOTAL_INTEREST
 
 echo -e "\nUS Bond Yield Rate"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/bond.csv $AGENT_DATA > /dev/null
 python3 $AGENT_HOME/bond/interest.py -f $AGENT_DATA/bond.csv -o $AGENT_DATA/bond-interest.csv \
-	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_TOTAL_INTEREST
+	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_SUBTOTAL_INTEREST
 
 echo -e "\nCash US Yield Rate"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/fixed-us.csv $AGENT_DATA > /dev/null
-python $AGENT_HOME/cash/fixed_us.py -f $AGENT_DATA/fixed-us.csv -o $AGENT_DATA/out-fixed.csv \
-	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_TOTAL_INTEREST
+python $AGENT_HOME/cash/fixed_us.py -f $AGENT_DATA/fixed-us.csv -o $AGENT_DATA/out-fixed-us.csv \
+	-c $AGENT_DATA/usd-to-ntd.txt -s $OUTPUT_SUBTOTAL_INTEREST
 
 echo -e "\nCash TW Yield Rate"
 echo -e "======================================================================"
 aws s3 cp s3://prjdoc/cp-agent/fixed.csv $AGENT_DATA > /dev/null
-python $AGENT_HOME/cash/fixed_tw.py -f $AGENT_DATA/fixed.csv -o $AGENT_DATA/out-fixed.csv \
-	-s $OUTPUT_TOTAL_INTEREST
+python $AGENT_HOME/cash/fixed_tw.py -f $AGENT_DATA/fixed.csv -o $AGENT_DATA/out-fixed-tw.csv \
+	-s $OUTPUT_SUBTOTAL_INTEREST
+
+#
+# Total
+#
+echo -e "\nTotal Asset"
+echo -e "======================================================================"
+python $AGENT_HOME/total/total.py -f $OUTPUT_SUBTOTAL_ASSET -o $OUTPUT_TOTAL_ASSET
+
+echo -e "\nTotal Interest"
+echo -e "======================================================================"
+python $AGENT_HOME/total/total.py -f $OUTPUT_SUBTOTAL_INTEREST -o $OUTPUT_TOTAL_INTEREST
 
 # Send report
 if [ x"$1" == "x-m" ]; then

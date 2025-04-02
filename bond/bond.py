@@ -13,7 +13,7 @@ def calculate_bond(input_file, output_file, conversion_file, summary_file):
     df = pd.read_csv(input_file)
     
     # Calculate curr-ntd-value
-    df['curr-ntd-value'] = df.apply(lambda row: int(float(row['unit']) * float(row['ref-price']) * conversion_rate) if pd.notnull(row['unit']) and pd.notnull(row['ref-price']) else 'Invalid Data', axis=1)
+    df['curr-ntd-value'] = df.apply(lambda row: int(float(row['unit']) / 100 * float(row['ref-price']) * conversion_rate) if pd.notnull(row['unit']) and pd.notnull(row['ref-price']) else 'Invalid Data', axis=1)
     
     # Save the updated DataFrame to the output CSV file
     df.to_csv(output_file, index=False)
@@ -31,7 +31,7 @@ def calculate_bond(input_file, output_file, conversion_file, summary_file):
     
     # Append the total values to the summary CSV file
     with open(summary_file, 'a', newline='') as summary:
-        writer = pd.DataFrame([['total_curr_ntd_value', total_curr_ntd_value]], columns=['name', 'value'])
+        writer = pd.DataFrame([['bond', total_curr_ntd_value]], columns=['name', 'value'])
         writer.to_csv(summary, header=False, index=False)
 
 if __name__ == "__main__":
